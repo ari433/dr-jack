@@ -46,7 +46,7 @@ revoke all on public.inventory, public.orders from anon, authenticated;
 revoke all on sequence public.drjack_order_id_seq from anon, authenticated;
 
 create or replace function public.check_stock(p_product text, p_variant text, p_color text, p_size integer)
-returns jsonb language plpgsql security definer set search_path = public as $$
+returns jsonb language plpgsql security invoker set search_path = public as $$
 declare
   item public.inventory%rowtype;
   alternatives jsonb;
@@ -71,7 +71,7 @@ begin
 end $$;
 
 create or replace function public.reserve_order(p_order jsonb)
-returns jsonb language plpgsql security definer set search_path = public as $$
+returns jsonb language plpgsql security invoker set search_path = public as $$
 declare
   existing public.orders%rowtype;
   item public.inventory%rowtype;
@@ -110,7 +110,7 @@ begin
 end $$;
 
 create or replace function public.mark_email_sent(p_order_id bigint, p_email_id text)
-returns jsonb language plpgsql security definer set search_path=public as $$
+returns jsonb language plpgsql security invoker set search_path=public as $$
 declare result public.orders%rowtype;
 begin
   update public.orders set email_id=coalesce(email_id,p_email_id)
@@ -121,7 +121,7 @@ begin
 end $$;
 
 create or replace function public.mark_email_delivered(p_email_id text)
-returns jsonb language plpgsql security definer set search_path=public as $$
+returns jsonb language plpgsql security invoker set search_path=public as $$
 declare result public.orders%rowtype;
 begin
   update public.orders set status='confirmed', confirmed_at=coalesce(confirmed_at,now()), email_error=null
@@ -131,7 +131,7 @@ begin
 end $$;
 
 create or replace function public.mark_email_failed(p_email_id text, p_error text)
-returns jsonb language plpgsql security definer set search_path=public as $$
+returns jsonb language plpgsql security invoker set search_path=public as $$
 declare result public.orders%rowtype;
 begin
   update public.orders set status='email_failed', email_error=left(p_error,1000)
@@ -140,13 +140,13 @@ begin
 end $$;
 
 create or replace function public.get_order_status(p_order_id bigint)
-returns jsonb language sql security definer set search_path=public as $$
+returns jsonb language sql security invoker set search_path=public as $$
   select coalesce((select jsonb_build_object('order_id',order_id,'status',status,'email_id',email_id)
     from public.orders where order_id=p_order_id), jsonb_build_object('status','not_found'));
 $$;
 
 create or replace function public.upsert_stock_bulk(p_items jsonb)
-returns jsonb language plpgsql security definer set search_path=public as $$
+returns jsonb language plpgsql security invoker set search_path=public as $$
 declare count_rows integer;
 begin
   if jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 or jsonb_array_length(p_items) > 1000 then
