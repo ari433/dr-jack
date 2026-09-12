@@ -25,11 +25,12 @@ Stock updates require `Authorization: Bearer <ADMIN_API_KEY>`.
 
 ## Setup
 
-1. Create a Supabase project and run `supabase/schema.sql`, then `supabase/seed.sql`.
-2. Create a Resend API key and verify the sender domain.
-3. Add the variables from `.env.example` to Netlify. Never commit secret values.
-4. In Resend, configure the webhook URL as `https://YOUR-SITE.netlify.app/api/resend-webhook` and subscribe to delivered, bounced, failed and complained events.
-5. Deploy to Netlify and configure the three agent Custom Functions from `AGJENTI_AI_SETUP.md`.
+1. Create a Supabase project and run `supabase/schema.sql`.
+2. Import the private Excel stock through `POST /api/update-stock` after deployment. The real inventory seed is intentionally not committed to GitHub.
+3. Create a Resend API key and verify the sender domain.
+4. Add the variables from `.env.example` to Netlify. Never commit secret values.
+5. In Resend, configure the webhook URL as `https://YOUR-SITE.netlify.app/api/resend-webhook` and subscribe to delivered, bounced, failed and complained events.
+6. Deploy to Netlify and configure the three agent Custom Functions from `AGJENTI_AI_SETUP.md`.
 
 ## Important
 
